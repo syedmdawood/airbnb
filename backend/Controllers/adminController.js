@@ -7,11 +7,11 @@ import jwt from "jsonwebtoken"
 const addProperty = async (req, res) => {
     try {
 
-        const { title, description, location, pricePerNight, amenities, category, maxGuests, } = req.body
+        const { title, description, location, pricePerNight, amenities, category, maxGuests, distance, date } = req.body
         const imageFile = req.file
 
         // checking for all data to ad doctor
-        if (!title || !description || !location || !pricePerNight || !maxGuests || !category || !amenities) {
+        if (!title || !description || !location || !pricePerNight || !maxGuests || !category || !amenities || !distance || !date) {
             return res.status(400).json({ success: false, message: "Missing Details" });
         }
 
@@ -26,6 +26,8 @@ const addProperty = async (req, res) => {
             pricePerNight,
             amenities,
             category,
+            distance,
+            date,
             maxGuests,
             image: imageUrl,
             date: Date.now(),

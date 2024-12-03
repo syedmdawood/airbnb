@@ -12,6 +12,8 @@ const propertySchema = new mongoose.Schema({
         default: [],
     },
     category: { type: String, required: true },
+    distance: { type: String, required: true },
+    date: { type: String, required: true },
     image: { type: String, required: true },
     maxGuests: { type: Number, required: true, min: 1, },
     availability: { type: Boolean, default: true, },
