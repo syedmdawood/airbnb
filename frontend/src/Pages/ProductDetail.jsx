@@ -1,28 +1,26 @@
 import { useContext } from "react";
-import { Link, useParams } from "react-router-dom";
-import { AppContext } from "../Context/AppContext";
+import { useParams, Link } from "react-router-dom";
 import { FaHeart, FaShare } from "react-icons/fa";
+import { AppContext } from "../Context/AppContext";
 import "../Styles/ProductDetail.css";
 
 const ProductDetail = () => {
   const { id } = useParams();
-  const { data } = useContext(AppContext);
 
-  // Find the specific product by its ID
-  const product = data
-    .flatMap((category) => category.item)
-    .find((item) => item.id === parseInt(id, 10));
+  const { properties, formatDate } = useContext(AppContext);
+
+  const product = properties.find((item) => item._id === id);
 
   if (!product) {
     return <div>Product not found</div>;
   }
 
   return (
-    <div className="product-detail px-16 ">
+    <div className="product-detail px-16">
       <div className="flex justify-between items-center py-6">
-        <span className="text-3xl font-medium">{product.mainTitle}</span>
+        <span className="text-3xl font-medium">{product.title}</span>
         <div className="flex items-center justify-between">
-          <p className="flex items-center justify-between w-16 mx-6 ">
+          <p className="flex items-center justify-between w-16 mx-6">
             <FaShare />
             Share
           </p>
@@ -34,31 +32,42 @@ const ProductDetail = () => {
       </div>
 
       <div className="flex justify-between border rounded-[10px] gap-2 h-[50vh] mb-6">
-        <img src={product.img1} alt="" className="w-[650px] h-[100%]" />
-        <div className="flex flex-col justify-center">
-          <img src={product.img2} alt="" className="w-72 h-[49%] mb-2" />
-          <img src={product.img3} alt="" className="w-72 h-[49%]" />
-        </div>
-        <div className="flex flex-col ">
-          <img src={product.img4} alt="" className="w-72 h-[49%] mb-2" />
-          <img src={product.img5} alt="" className="w-72 h-[49%]" />
+        <img
+          src={product.image}
+          alt={product.title}
+          className="w-[650px] h-[100%]"
+        />
+        <div className="flex flex-col justify-center sm:hidden md:block lg:block w-[600px] mx-10 pt-10 text-justify items-center">
+          <p>{product.description}</p>
         </div>
       </div>
 
       <div className="flex items-center justify-between pb-10">
         <div>
-          <span className="text-2xl font-medium">{product.subMainTitle}</span>
-          <p>
-            {product.noOfGuest} guests . {product.noOfbedrooms} bedrooms .{" "}
-            {product.noOfBathroom} bath
-          </p>
+          <span className="text-2xl font-medium">
+            ${product.pricePerNight} per night
+          </span>
+          <p>{product.distance} kilometers away</p>
+          <p>{formatDate(product.checkin, product.checkout)}</p>
+
+          <p>{product.amenities}</p>
         </div>
-        <Link to={`/book/${product.id}`}>
+        <Link to={`/book/${product._id}`}>
           <button className="border bg-Button text-white px-6 py-3 rounded-xl">
             Book Now
           </button>
         </Link>
       </div>
+
+      {product.subMainTitle && (
+        <div className="flex items-center justify-between pb-6">
+          <span className="text-xl">{product.subMainTitle}</span>
+          <p>
+            {product.noOfGuest} guests . {product.noOfbedrooms} bedrooms .{" "}
+            {product.noOfBathroom} bath
+          </p>
+        </div>
+      )}
 
       {product.bedRoomImg1 || product.bedRoomImg2 ? (
         <div className="flex flex-col mb-10">
@@ -67,30 +76,26 @@ const ProductDetail = () => {
             <div>
               <img
                 src={product.bedRoomImg1}
-                alt=""
+                alt="Bedroom 1"
                 className="w-[320px] h-[230px] rounded-[10px] mb-3"
               />
               <p className="font-medium">Bedroom 1</p>
               <p className="text-sm">1 double bed</p>
             </div>
-            {product.bedRoomImg2 ? (
+            {product.bedRoomImg2 && (
               <div>
                 <img
                   src={product.bedRoomImg2}
-                  alt=""
+                  alt="Bedroom 2"
                   className="w-[320px] h-[230px] rounded-[10px] mb-3"
                 />
                 <p className="font-medium">Bedroom 2</p>
                 <p className="text-sm">1 double bed</p>
               </div>
-            ) : (
-              ""
             )}
           </div>
         </div>
-      ) : (
-        ""
-      )}
+      ) : null}
     </div>
   );
 };

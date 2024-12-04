@@ -4,13 +4,11 @@ import { AppContext } from "../Context/AppContext";
 
 const BookingPage = () => {
   const { id } = useParams();
-  const { data } = useContext(AppContext);
+  const { properties } = useContext(AppContext); // Assuming properties contain the product data
   const navigate = useNavigate();
 
-  // Find the selected product
-  const product = data
-    .flatMap((category) => category.item)
-    .find((item) => item.id === parseInt(id, 10));
+  // Find the selected product from the context
+  const product = properties.find((item) => item._id === id); // Use _id for consistency
 
   // Form state for booking details
   const [checkInDate, setCheckInDate] = useState("");
@@ -26,7 +24,7 @@ const BookingPage = () => {
   // Calculate total price based on dates and guest count
   const calculateTotalPrice = () => {
     if (checkInDate && checkOutDate && guestCount > 0) {
-      const pricePerNight = product.price;
+      const pricePerNight = product.pricePerNight; // Adjusted field name to pricePerNight
       const total =
         (pricePerNight *
           guestCount *
@@ -91,22 +89,22 @@ const BookingPage = () => {
     <div className="booking-page px-8 py-16 bg-gray-50">
       <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-xl">
         <h2 className="text-3xl font-semibold text-center text-gray-800 mb-6">
-          Book Your Stay at {product.mainTitle}
+          Book Your Stay at {product.title}
         </h2>
 
         <div className="product-summary flex mb-8">
           <img
-            src={product.img1}
-            alt={product.mainTitle}
+            src={product.image}
+            alt={product.title}
             className="w-48 h-32 object-cover rounded-md mr-6"
           />
           <div className="flex flex-col justify-center">
             <h3 className="text-xl font-medium text-gray-800">
-              {product.mainTitle}
+              {product.title}
             </h3>
             <p className="text-gray-600">{product.subMainTitle}</p>
             <p className="text-lg font-bold text-orange-500">
-              ${product.price} per night
+              ${product.pricePerNight} per night
             </p>
           </div>
         </div>

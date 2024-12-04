@@ -109,7 +109,7 @@ const Navbars = () => {
 
             {scroll && (
               <div
-                className={`links flex ml-[50px] lg:pt-0 md:pt-[90px] transition-all duration-100 ease-in-out sm:hidden`}
+                className={`links flex ml-[50px] lg:pt-0 md:pt-[90px] transition-all duration-100 ease-in-out lg:block md:block sm:hidden`}
               >
                 <ul className="flex ml-0">
                   <li className="list-none px-[20px] py-[10px] text-[18px]">

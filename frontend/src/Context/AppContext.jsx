@@ -1,39 +1,63 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useDeferredValue } from "react";
+import { toast } from "react-toastify";
+import axios from "axios";
+import categories from "../categories";
 
 export const AppContext = createContext();
 
 const AppContextProvider = (props) => {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [data, setData] = useState(categories);
+  const [selectedCategory, setSelectedCategory] = useState(
+    categories.find((category) => category.name === "Top Cities")
+  );
+  const [properties, setProperties] = useState([]);
+  const formatDateRange = (checkin, checkout) => {
+    // Ensure that checkin and checkout are valid dates
+    const checkinDate = new Date(checkin);
+    const checkoutDate = new Date(checkout);
+
+    // Check if either checkin or checkout date is invalid
+    if (isNaN(checkinDate) || isNaN(checkoutDate)) {
+      return "Invalid dates"; // Handle invalid date case
+    }
+
+    const options = { month: "short", day: "numeric" };
+    const checkinFormatted = checkinDate.toLocaleDateString("en-US", options);
+    const checkoutFormatted = checkoutDate.toLocaleDateString("en-US", options);
+
+    return `${checkinFormatted} - ${checkoutFormatted}`;
+  };
+
+  const getPropertiesData = async () => {
+    try {
+      const { data } = await axios.get(
+        "http://localhost:5000/api/property/list"
+      );
+      if (data.success) {
+        setProperties(data.properties);
+
+        console.log(data.properties);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(data.message);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/api/listing");
-        const result = await response.json();
-        setData(result.data);
-
-        // Automatically set the first category as default
-        if (result.data && result.data.length > 0) {
-          setSelectedCategory(result.data[0]); // Set the first category as default
-        }
-        console.log(result.data);
-      } catch (error) {
-        setError("Failed to fetch data");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+    getPropertiesData();
   }, []);
 
   const value = {
     data,
     selectedCategory,
     setSelectedCategory,
+    properties,
+    setProperties,
+    getPropertiesData,
+    formatDate: formatDateRange,
   };
 
   return (

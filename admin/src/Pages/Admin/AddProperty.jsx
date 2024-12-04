@@ -14,8 +14,9 @@ const AddProperty = () => {
   const [amenities, setAmenities] = useState("");
   const [maxGuests, setMaxGuests] = useState("");
   const [description, setDescription] = useState("");
-  const [date, setDate] = useState("");
   const [distance, setDistance] = useState("");
+  const [checkin, setCheckin] = useState("");
+  const [checkout, setCheckout] = useState("");
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
@@ -33,8 +34,9 @@ const AddProperty = () => {
       formData.append("amenities", amenities);
       formData.append("maxGuests", Number(maxGuests));
       formData.append("description", description);
-      formData.append("date", date);
       formData.append("distance", distance);
+      formData.append("checkin", checkin);
+      formData.append("checkout", checkout);
 
       // console log formdata
       // formData.forEach((value, key) => {
@@ -57,8 +59,9 @@ const AddProperty = () => {
         setPrice("");
         setDescription("");
         setMaxGuests("");
-        setDate("");
         setDistance("");
+        setCheckin("");
+        setCheckout("");
       } else {
         toast.error(data.message);
       }
@@ -187,6 +190,32 @@ const AddProperty = () => {
 
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1 flex flex-col gap-1">
+              <p>Check In Date</p>
+              <input
+                onChange={(e) => setCheckin(e.target.value)}
+                value={checkin}
+                className="border rounded px-3 py-2"
+                type="date"
+                placeholder="Enter Check In Date"
+                required
+              />
+            </div>
+
+            <div className="flex-1 flex flex-col gap-1">
+              <p>Check Out Date</p>
+              <input
+                onChange={(e) => setCheckout(e.target.value)}
+                value={checkout}
+                className="border rounded px-3 py-2"
+                type="date"
+                placeholder="Enter Checkout Date"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col lg:flex-row gap-4">
+            <div className="flex-1 flex flex-col gap-1">
               <p>Distance</p>
               <input
                 onChange={(e) => setDistance(e.target.value)}
@@ -199,14 +228,14 @@ const AddProperty = () => {
             </div>
 
             <div className="flex-1 flex flex-col gap-1">
-              <p>Date</p>
+              {/* <p>Date</p> */}
               <input
-                onChange={(e) => setDate(e.target.value)}
-                value={date}
-                className="border rounded px-3 py-2"
-                type="text"
-                placeholder="Enter date"
-                required
+                // onChange={(e) => setDate(e.target.value)}
+                // value={date}
+                className="border rounded px-3 py-2 hidden"
+                // type="text"
+                // placeholder="Enter date"
+                // required
               />
             </div>
           </div>

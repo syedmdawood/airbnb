@@ -6,11 +6,12 @@ import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { AppContext } from "../Context/AppContext";
 
 const Categories = () => {
-  const [selectedIcon, setSelectedIcon] = useState(null); // Track the selected icon
-  const [isOn, setIsOn] = useState(false); // For toggle switch state
+  const [selectedIcon, setSelectedIcon] = useState(null);
+  const [isOn, setIsOn] = useState(false);
   const [showForwardArrow, setShowForwardArrow] = useState(true);
   const [showBackwardArrow, setShowBackwardArrow] = useState(false);
-  const { data, setSelectedCategory } = useContext(AppContext); // Fetching data from context
+  const { data, setSelectedCategory, properties, getPropertiesData } =
+    useContext(AppContext);
   const iconsRef = useRef(null);
 
   // Toggle switch handler

@@ -7,11 +7,11 @@ import jwt from "jsonwebtoken"
 const addProperty = async (req, res) => {
     try {
 
-        const { title, description, location, pricePerNight, amenities, category, maxGuests, distance, date } = req.body
+        const { title, description, location, pricePerNight, amenities, category, maxGuests, distance, checkin, checkout } = req.body
         const imageFile = req.file
 
         // checking for all data to ad doctor
-        if (!title || !description || !location || !pricePerNight || !maxGuests || !category || !amenities || !distance || !date) {
+        if (!title || !description || !location || !pricePerNight || !maxGuests || !category || !amenities || !distance || !checkin || !checkout) {
             return res.status(400).json({ success: false, message: "Missing Details" });
         }
 
@@ -27,10 +27,11 @@ const addProperty = async (req, res) => {
             amenities,
             category,
             distance,
-            date,
+            checkin,
+            checkout,
             maxGuests,
             image: imageUrl,
-            date: Date.now(),
+
         }
 
         const newProperty = new propertyModel(propertyData)
@@ -65,5 +66,16 @@ const loginAdmin = async (req, res) => {
     }
 }
 
+// Api to get all property list for admin panel
+const allProperties = async (req, res) => {
+    try {
+        const propertyList = await propertyModel.find({})
+        res.status(200).json({ success: true, propertyList })
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message })
+    }
+}
 
-export { addProperty, loginAdmin }
+
+export { addProperty, loginAdmin, allProperties }

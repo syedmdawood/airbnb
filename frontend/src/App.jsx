@@ -7,6 +7,8 @@ import LowerNavbar from "./Components/LowerNavbar";
 import Footer from "./Components/Footer";
 import BookingPage from "./Pages/BookingPage";
 import Navbars from "./Components/Navbars";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const App = () => {
   return (
@@ -14,6 +16,7 @@ const App = () => {
       <Router>
         {/* <Navbar />
         <SingleSearchBar /> */}
+        <ToastContainer />
         <Navbars />
         <Routes>
           <Route path="/" element={<Home />} />
