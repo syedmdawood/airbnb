@@ -1,12 +1,12 @@
 import { useContext } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { FaHeart, FaShare } from "react-icons/fa";
 import { AppContext } from "../Context/AppContext";
 import "../Styles/ProductDetail.css";
 
 const ProductDetail = () => {
   const { id } = useParams();
-
+  const navigate = useNavigate(); // React Router's navigation hook
   const { properties, formatDate } = useContext(AppContext);
 
   const product = properties.find((item) => item._id === id);
@@ -14,6 +14,19 @@ const ProductDetail = () => {
   if (!product) {
     return <div>Product not found</div>;
   }
+
+  const handleBooking = () => {
+    const gToken = localStorage.getItem("gToken");
+    const hToken = localStorage.getItem("hToken");
+
+    if (!gToken && !hToken) {
+      // Redirect to login if no tokens are found
+      navigate("/login");
+    } else {
+      // Redirect to booking page if tokens exist
+      navigate(`/book/${product._id}`);
+    }
+  };
 
   return (
     <div className="product-detail px-16">
@@ -49,14 +62,14 @@ const ProductDetail = () => {
           </span>
           <p>{product.distance} kilometers away</p>
           <p>{formatDate(product.checkin, product.checkout)}</p>
-
           <p>{product.amenities}</p>
         </div>
-        <Link to={`/book/${product._id}`}>
-          <button className="border bg-Button text-white px-6 py-3 rounded-xl">
-            Book Now
-          </button>
-        </Link>
+        <button
+          onClick={handleBooking}
+          className="border bg-Button text-white px-6 py-3 rounded-xl"
+        >
+          Book Now
+        </button>
       </div>
 
       {product.subMainTitle && (

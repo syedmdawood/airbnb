@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, useDeferredValue } from "react";
+import { createContext, useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
 import categories from "../categories";
@@ -10,15 +10,21 @@ const AppContextProvider = (props) => {
   const [selectedCategory, setSelectedCategory] = useState(
     categories.find((category) => category.name === "Top Cities")
   );
+
+  const [hToken, setHToken] = useState(
+    localStorage.getItem("hToken") ? localStorage.getItem("hToken") : ""
+  );
+  const [gToken, setGToken] = useState(
+    localStorage.getItem("gToken") ? localStorage.getItem("gToken") : ""
+  );
+
   const [properties, setProperties] = useState([]);
   const formatDateRange = (checkin, checkout) => {
-    // Ensure that checkin and checkout are valid dates
     const checkinDate = new Date(checkin);
     const checkoutDate = new Date(checkout);
 
-    // Check if either checkin or checkout date is invalid
     if (isNaN(checkinDate) || isNaN(checkoutDate)) {
-      return "Invalid dates"; // Handle invalid date case
+      return "Invalid dates";
     }
 
     const options = { month: "short", day: "numeric" };
@@ -58,6 +64,10 @@ const AppContextProvider = (props) => {
     setProperties,
     getPropertiesData,
     formatDate: formatDateRange,
+    hToken,
+    setHToken,
+    gToken,
+    setGToken,
   };
 
   return (

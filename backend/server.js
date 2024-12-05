@@ -5,6 +5,7 @@ import cors from 'cors';
 import connectCloudinary from './Config/cloudinary.js';
 import adminRouter from './Routes/adminRoutes.js';
 import propertyRouter from './Routes/propertyRoutes.js';
+import userRouter from './Routes/userRoutes.js';
 
 
 const app = express();
@@ -21,6 +22,7 @@ app.use(cors());
 
 app.use("/api/admin", adminRouter)
 app.use("/api/property", propertyRouter)
+app.use("/api/user", userRouter)
 
 app.get("/", (req, res) => {
     res.send("API Working Properly");

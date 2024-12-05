@@ -5,7 +5,8 @@ import { AppContext } from "../Context/AppContext.jsx";
 import { Link } from "react-router-dom";
 
 const Cards = () => {
-  const { selectedCategory, properties, formatDate } = useContext(AppContext);
+  const { selectedCategory, properties, formatDate, gToken, hToken } =
+    useContext(AppContext);
 
   // Handle loading state if `selectedCategory` is not yet available
   if (!selectedCategory) {

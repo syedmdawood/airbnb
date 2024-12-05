@@ -9,6 +9,7 @@ export default {
       colors: {
         'Button': '#FB335A',
         "searchButton": "#E41D56",
+        "primary": "#E41D56",
       },
     },
   },

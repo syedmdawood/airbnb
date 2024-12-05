@@ -3,6 +3,7 @@ import logo from "../assets/logo.png";
 import subLogo from "../assets/subLogo.png";
 import { MdFilterList } from "react-icons/md";
 import { FaGlobe, FaBars, FaUser, FaSearch } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const Navbars = () => {
   const [menu, setMenu] = useState(false);
@@ -11,6 +12,8 @@ const Navbars = () => {
   const [isSmallScreen, setIsSmallScreen] = useState(false);
 
   const destinationInputRef = useRef(null);
+  const menuRef = useRef(null); // Reference for the dropdown menu
+  const menuButtonRef = useRef(null); // Reference for the menu button
 
   // Toggles the menu
   const toggleMenu = () => {
@@ -36,6 +39,17 @@ const Navbars = () => {
     setIsSmallScreen(window.innerWidth < 768);
   };
 
+  // Close menu on outside click
+  const handleClickOutside = (e) => {
+    if (
+      menuRef.current &&
+      !menuRef.current.contains(e.target) &&
+      !menuButtonRef.current.contains(e.target)
+    ) {
+      setMenu(false);
+    }
+  };
+
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
     window.addEventListener("resize", handleResize);
@@ -43,9 +57,13 @@ const Navbars = () => {
     // Set initial screen size
     handleResize();
 
+    // Add event listener for outside click
+    document.addEventListener("mousedown", handleClickOutside);
+
     return () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleResize);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -130,6 +148,7 @@ const Navbars = () => {
                 <FaGlobe size={16} />
               </span>
               <div
+                ref={menuButtonRef}
                 className="menu flex ml-[8px] px-[13px] py-[7px] justify-between items-center w-[85px] border border-[#e3e3e3] rounded-full cursor-pointer"
                 onClick={toggleMenu}
               >
@@ -142,9 +161,13 @@ const Navbars = () => {
               </div>
 
               {menu && (
-                <div className="hover absolute right-0 top-[48px] bg-white shadow-[0px_5px_5px_rgb(184,182,182)] w-[240px] z-10 p-[15px]">
-                  <p className="my-[10px] text-[14px]">Sign Up</p>
-                  <p className="my-[10px] text-[14px]">Login</p>
+                <div
+                  ref={menuRef}
+                  className="hover absolute right-0 top-[48px] bg-white shadow-[0px_5px_5px_rgb(184,182,182)] w-[240px] z-10 p-[15px]"
+                >
+                  <Link to="/login">
+                    <p className="my-[10px] text-[14px]">Login</p>
+                  </Link>
                   <hr className="w-full" />
                   <p className="my-[10px] text-[14px]">Gift Cards</p>
                   <p className="my-[10px] text-[14px]">Airbnb your home</p>
@@ -154,63 +177,6 @@ const Navbars = () => {
               )}
             </div>
           </nav>
-
-          {scroll && (
-            <div>
-              <form className="flex justify-between transition-all duration-100 h-14 lg:w-[65%] md:w-[80%] items-center text-center m-auto border rounded-full lg:mt-[0px] md:mt-[30px] mb-10">
-                <div className="flex flex-col items-start rounded-full hover:bg-gray-300 w-[30%] ps-8">
-                  <label htmlFor="where" className="font-medium">
-                    Where
-                  </label>
-                  <input
-                    ref={destinationInputRef}
-                    type="text"
-                    id="where"
-                    placeholder="Search Destination"
-                    className="text-[15px] pb-2"
-                  />
-                </div>
-                <div className="flex flex-col items-start rounded-full hover:bg-gray-300 w-[20%] ps-8">
-                  <label htmlFor="checkin" className="font-medium">
-                    Check In
-                  </label>
-                  <input
-                    type="text"
-                    id="checkin"
-                    placeholder="Add Dates"
-                    className="text-[15px] pb-2"
-                  />
-                </div>
-                <div className="flex flex-col items-start rounded-full hover:bg-gray-300 w-[20%] ps-8">
-                  <label htmlFor="checkout" className="font-medium">
-                    Check Out
-                  </label>
-                  <input
-                    type="text"
-                    id="checkout"
-                    placeholder="Add Dates"
-                    className="text-[15px] pb-2"
-                  />
-                </div>
-                <div className="flex justify-center items-center rounded-full hover:bg-gray-300 w-[30%] ps-8">
-                  <div className="flex flex-col items-start">
-                    <label htmlFor="who" className="font-medium">
-                      Who
-                    </label>
-                    <input
-                      type="text"
-                      id="who"
-                      placeholder="Add Guests"
-                      className="text-[15px] pb-2"
-                    />
-                  </div>
-                  <button className="bg-searchButton rounded-full p-3 me-4">
-                    <FaSearch color="white" size={18} />
-                  </button>
-                </div>
-              </form>
-            </div>
-          )}
         </>
       )}
     </div>
