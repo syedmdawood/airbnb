@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { FaHeart, FaShare } from "react-icons/fa";
 import { AppContext } from "../Context/AppContext";
 import "../Styles/ProductDetail.css";
+import { toast } from "react-toastify";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -21,7 +22,8 @@ const ProductDetail = () => {
 
     if (!gToken && !hToken) {
       // Redirect to login if no tokens are found
-      navigate("/login");
+      toast.warn("Login to book a property");
+      return navigate("/login");
     } else {
       // Redirect to booking page if tokens exist
       navigate(`/book/${product._id}`);
@@ -71,44 +73,6 @@ const ProductDetail = () => {
           Book Now
         </button>
       </div>
-
-      {product.subMainTitle && (
-        <div className="flex items-center justify-between pb-6">
-          <span className="text-xl">{product.subMainTitle}</span>
-          <p>
-            {product.noOfGuest} guests . {product.noOfbedrooms} bedrooms .{" "}
-            {product.noOfBathroom} bath
-          </p>
-        </div>
-      )}
-
-      {product.bedRoomImg1 || product.bedRoomImg2 ? (
-        <div className="flex flex-col mb-10">
-          <p className="text-2xl font-medium mb-5">Where you’ll sleep</p>
-          <div className="flex gap-5">
-            <div>
-              <img
-                src={product.bedRoomImg1}
-                alt="Bedroom 1"
-                className="w-[320px] h-[230px] rounded-[10px] mb-3"
-              />
-              <p className="font-medium">Bedroom 1</p>
-              <p className="text-sm">1 double bed</p>
-            </div>
-            {product.bedRoomImg2 && (
-              <div>
-                <img
-                  src={product.bedRoomImg2}
-                  alt="Bedroom 2"
-                  className="w-[320px] h-[230px] rounded-[10px] mb-3"
-                />
-                <p className="font-medium">Bedroom 2</p>
-                <p className="text-sm">1 double bed</p>
-              </div>
-            )}
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 };

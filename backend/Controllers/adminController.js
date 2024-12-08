@@ -2,6 +2,7 @@
 import { v2 as cloudinary } from "cloudinary"
 import propertyModel from "../Models/propertyModel.js"
 import jwt from "jsonwebtoken"
+import mongoose from "mongoose"
 
 // Api for adding property from admin
 const addProperty = async (req, res) => {
@@ -10,7 +11,7 @@ const addProperty = async (req, res) => {
         const { title, description, location, pricePerNight, amenities, category, maxGuests, distance, checkin, checkout } = req.body
         const imageFile = req.file
 
-        // checking for all data to ad doctor
+        // checking for all data to add property
         if (!title || !description || !location || !pricePerNight || !maxGuests || !category || !amenities || !distance || !checkin || !checkout) {
             return res.status(400).json({ success: false, message: "Missing Details" });
         }
@@ -18,6 +19,10 @@ const addProperty = async (req, res) => {
         // upload image to cloudinary
         const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: "image" })
         const imageUrl = imageUpload.secure_url
+
+        // Check if the user is an admin or a regular user
+        let userId = req.user ? req.user._id : new mongoose.Types.ObjectId("60c72b2f9e1d4f23d4d3c1f3"); // Replace with a valid ObjectId for admin
+
 
         const propertyData = {
             title,
@@ -31,7 +36,7 @@ const addProperty = async (req, res) => {
             checkout,
             maxGuests,
             image: imageUrl,
-
+            userId: userId // Assigning userId from request or hardcoding for admin
         }
 
         const newProperty = new propertyModel(propertyData)
@@ -39,11 +44,9 @@ const addProperty = async (req, res) => {
 
         res.status(200).json({ success: true, message: "Property Added" })
 
-
     } catch (error) {
         console.log(error);
         res.status(500).json({ success: false, message: error.message })
-
     }
 }
 

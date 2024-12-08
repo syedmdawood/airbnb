@@ -16,7 +16,10 @@ import Login from "./Pages/Login";
 
 import { useContext } from "react";
 import { AppContext } from "./Context/AppContext";
-import Dashboard from "./Host/Dashboard";
+
+import Bookings from "./Host/Pages/Bookings";
+import PropertyList from "./Host/Pages/PropertyList";
+import AddProperty from "./Host/Pages/AddProperty";
 
 const App = () => {
   const { gToken, hToken } = useContext(AppContext);
@@ -59,11 +62,30 @@ const App = () => {
           />
 
           {/* Host-Specific Routes */}
+
           <Route
-            path="/host"
+            path="/host/bookings"
             element={
               <HostRoute>
-                <Dashboard />
+                <Bookings />
+              </HostRoute>
+            }
+          />
+
+          <Route
+            path="/host/property-list"
+            element={
+              <HostRoute>
+                <PropertyList />
+              </HostRoute>
+            }
+          />
+
+          <Route
+            path="/host/add-property"
+            element={
+              <HostRoute>
+                <AddProperty />
               </HostRoute>
             }
           />

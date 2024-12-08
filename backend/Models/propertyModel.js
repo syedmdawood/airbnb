@@ -19,6 +19,7 @@ const propertySchema = new mongoose.Schema({
     maxGuests: { type: Number, required: true, min: 1, },
     availability: { type: Boolean, default: true, },
     slots_booked: { type: Object, default: {} },
+    userId: { type: mongoose.Schema.Types.ObjectId, required: true }
 
 }, { minimize: false })
 

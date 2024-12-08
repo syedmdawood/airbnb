@@ -76,7 +76,11 @@ const Login = () => {
     }
   };
 
-  return (
+  return gToken || hToken ? (
+    <>
+      <p>you are loged in</p>
+    </>
+  ) : (
     <form className="min-h-[80vh] flex items-center" onSubmit={handleSubmit}>
       <div className="flex flex-col gap-3 m-auto items-start p-8 min-w-[340px] sm:min-w-96 border rounded-xl text-zinc-600 text-sm shadow-lg">
         <p className="text-2xl font-semibold text-primary">

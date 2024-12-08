@@ -1,23 +1,31 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import logo from "../assets/logo.png";
 import subLogo from "../assets/subLogo.png";
 import { MdFilterList } from "react-icons/md";
 import { FaGlobe, FaBars, FaUser, FaSearch } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { AppContext } from "../Context/AppContext";
 
 const Navbars = () => {
   const [menu, setMenu] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [scroll, setScroll] = useState(true);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
-
+  const { gToken, setGToken, hToken, setHToken } = useContext(AppContext);
+  const navigate = useNavigate();
   const destinationInputRef = useRef(null);
-  const menuRef = useRef(null); // Reference for the dropdown menu
-  const menuButtonRef = useRef(null); // Reference for the menu button
 
   // Toggles the menu
   const toggleMenu = () => {
     setMenu((prevState) => !prevState);
+  };
+
+  const logout = () => {
+    navigate("/");
+    gToken && setGToken("");
+    gToken && localStorage.removeItem("gToken");
+    hToken && setHToken("");
+    hToken && localStorage.removeItem("hToken");
   };
 
   // Handles scroll effects
@@ -39,17 +47,6 @@ const Navbars = () => {
     setIsSmallScreen(window.innerWidth < 768);
   };
 
-  // Close menu on outside click
-  const handleClickOutside = (e) => {
-    if (
-      menuRef.current &&
-      !menuRef.current.contains(e.target) &&
-      !menuButtonRef.current.contains(e.target)
-    ) {
-      setMenu(false);
-    }
-  };
-
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
     window.addEventListener("resize", handleResize);
@@ -57,13 +54,9 @@ const Navbars = () => {
     // Set initial screen size
     handleResize();
 
-    // Add event listener for outside click
-    document.addEventListener("mousedown", handleClickOutside);
-
     return () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleResize);
-      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -103,7 +96,9 @@ const Navbars = () => {
         <>
           <nav className="flex justify-between items-center h-[70px] px-[30px]">
             <div className="w-[150px] lg:block md:hidden sm:hidden">
-              <img src={logo} alt="logo" className="w-full" />
+              <Link to="/">
+                <img src={logo} alt="logo" className="w-full" />
+              </Link>
             </div>
             <div className="subLogo lg:hidden md:block">
               <img src={subLogo} alt="" className="w-[40px] mt-[20px]" />
@@ -127,9 +122,31 @@ const Navbars = () => {
 
             {scroll && (
               <div
-                className={`links flex ml-[50px] lg:pt-0 md:pt-[90px] transition-all duration-100 ease-in-out lg:block md:block sm:hidden`}
+                className={`links flex ml-[50px] lg:pt-0 md:pt-[90px] transition-all duration-100 ease-in-out sm:hidden lg:block md:block`}
               >
                 <ul className="flex ml-0">
+                  {hToken ? (
+                    <div className="group">
+                      <li className="list-none px-[20px] py-[10px] text-[17px]">
+                        <p>Host Panel</p>
+                      </li>
+                      <div className="dropdown-content group-hover:block hidden absolute left-200  bg-white shadow-lg rounded border w-48 z-10">
+                        <ul className="text-gray-700">
+                          <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                            <Link to="/host/bookings">Bookings</Link>
+                          </li>
+                          <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                            <Link to="/host/property-list">Property List</Link>
+                          </li>
+                          <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                            <Link to="/host/add-property">Add Property</Link>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  ) : (
+                    ""
+                  )}
                   <li className="list-none px-[20px] py-[10px] text-[18px]">
                     <a href="#">Stays</a>
                   </li>
@@ -148,7 +165,6 @@ const Navbars = () => {
                 <FaGlobe size={16} />
               </span>
               <div
-                ref={menuButtonRef}
                 className="menu flex ml-[8px] px-[13px] py-[7px] justify-between items-center w-[85px] border border-[#e3e3e3] rounded-full cursor-pointer"
                 onClick={toggleMenu}
               >
@@ -161,13 +177,17 @@ const Navbars = () => {
               </div>
 
               {menu && (
-                <div
-                  ref={menuRef}
-                  className="hover absolute right-0 top-[48px] bg-white shadow-[0px_5px_5px_rgb(184,182,182)] w-[240px] z-10 p-[15px]"
-                >
-                  <Link to="/login">
-                    <p className="my-[10px] text-[14px]">Login</p>
-                  </Link>
+                <div className="hover absolute right-0 top-[48px] bg-white shadow-[0px_5px_5px_rgb(184,182,182)] w-[240px] z-10 p-[15px]">
+                  {gToken || hToken ? (
+                    <p onClick={logout} className="my-[10px] text-[14px]">
+                      Logout
+                    </p>
+                  ) : (
+                    <Link to="/login">
+                      <p className="my-[10px] text-[14px]">Login</p>
+                    </Link>
+                  )}
+
                   <hr className="w-full" />
                   <p className="my-[10px] text-[14px]">Gift Cards</p>
                   <p className="my-[10px] text-[14px]">Airbnb your home</p>
@@ -177,6 +197,63 @@ const Navbars = () => {
               )}
             </div>
           </nav>
+
+          {scroll && (
+            <div>
+              <form className="flex justify-between transition-all duration-100 h-14 lg:w-[65%] md:w-[80%] items-center text-center m-auto border rounded-full lg:mt-[0px] md:mt-[30px] mb-10">
+                <div className="flex flex-col items-start rounded-full hover:bg-gray-300 w-[30%] ps-8">
+                  <label htmlFor="where" className="font-medium">
+                    Where
+                  </label>
+                  <input
+                    ref={destinationInputRef}
+                    type="text"
+                    id="where"
+                    placeholder="Search Destination"
+                    className="text-[15px] pb-2"
+                  />
+                </div>
+                <div className="flex flex-col items-start rounded-full hover:bg-gray-300 w-[20%] ps-8">
+                  <label htmlFor="checkin" className="font-medium">
+                    Check In
+                  </label>
+                  <input
+                    type="text"
+                    id="checkin"
+                    placeholder="Add Dates"
+                    className="text-[15px] pb-2"
+                  />
+                </div>
+                <div className="flex flex-col items-start rounded-full hover:bg-gray-300 w-[20%] ps-8">
+                  <label htmlFor="checkout" className="font-medium">
+                    Check Out
+                  </label>
+                  <input
+                    type="text"
+                    id="checkout"
+                    placeholder="Add Dates"
+                    className="text-[15px] pb-2"
+                  />
+                </div>
+                <div className="flex justify-center items-center rounded-full hover:bg-gray-300 w-[30%] ps-8">
+                  <div className="flex flex-col items-start">
+                    <label htmlFor="who" className="font-medium">
+                      Who
+                    </label>
+                    <input
+                      type="text"
+                      id="who"
+                      placeholder="Add Guests"
+                      className="text-[15px] pb-2"
+                    />
+                  </div>
+                  <button className="bg-searchButton rounded-full p-3 me-4">
+                    <FaSearch color="white" size={18} />
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
         </>
       )}
     </div>
