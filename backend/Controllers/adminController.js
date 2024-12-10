@@ -7,7 +7,6 @@ import mongoose from "mongoose"
 // Api for adding property from admin
 const addProperty = async (req, res) => {
     try {
-
         const { title, description, location, pricePerNight, amenities, category, maxGuests, distance, checkin, checkout } = req.body
         const imageFile = req.file
 

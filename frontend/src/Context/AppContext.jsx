@@ -10,6 +10,7 @@ const AppContextProvider = (props) => {
   const [selectedCategory, setSelectedCategory] = useState(
     categories.find((category) => category.name === "Top Cities")
   );
+  const [hostData, setHostData] = useState([]);
 
   const [hToken, setHToken] = useState(
     localStorage.getItem("hToken") ? localStorage.getItem("hToken") : ""
@@ -17,8 +18,8 @@ const AppContextProvider = (props) => {
   const [gToken, setGToken] = useState(
     localStorage.getItem("gToken") ? localStorage.getItem("gToken") : ""
   );
-
   const [properties, setProperties] = useState([]);
+
   const formatDateRange = (checkin, checkout) => {
     const checkinDate = new Date(checkin);
     const checkoutDate = new Date(checkout);
@@ -52,6 +53,61 @@ const AppContextProvider = (props) => {
     }
   };
 
+  const getHostData = async () => {
+    try {
+      const { data } = await axios.get(
+        "http://localhost:5000/api/host/property-list",
+        { headers: { hToken } }
+      );
+      if (data.success) {
+        setHostData(data.propertyList);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(data.message);
+    }
+  };
+
+  const changeAvailability = async (propertyId) => {
+    try {
+      const { data } = await axios.post(
+        "http://localhost:5000/api/host/change-availability",
+        { propertyId },
+        { headers: { hToken } }
+      );
+      if (data.success) {
+        toast.success(data.message);
+        getHostData();
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(data.message);
+    }
+  };
+
+  const deleteProperty = async (propertyId) => {
+    try {
+      const { data } = await axios.post(
+        "http://localhost:5000/api/host/delete-property",
+        { propertyId },
+        { headers: { hToken } }
+      );
+      if (data.success) {
+        toast.success(data.message);
+        getHostData();
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(data.message);
+    }
+  };
+
   useEffect(() => {
     getPropertiesData();
   }, []);
@@ -68,6 +124,11 @@ const AppContextProvider = (props) => {
     setHToken,
     gToken,
     setGToken,
+    hostData,
+    setHostData,
+    getHostData,
+    changeAvailability,
+    deleteProperty,
   };
 
   return (
