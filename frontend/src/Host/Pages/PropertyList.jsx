@@ -53,7 +53,7 @@ const PropertyList = () => {
                   </span>
                 </label>
                 <button
-                  className="text-xs px-2 py-1 rounded-full text-red-600 border  border-red-600"
+                  className="text-xs px-2 py-1 rounded-full text-red-600 border me-1  border-red-600"
                   onClick={() => deleteProperty(item._id)}
                 >
                   Delete
