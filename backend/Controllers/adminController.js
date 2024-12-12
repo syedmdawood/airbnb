@@ -78,6 +78,28 @@ const allProperties = async (req, res) => {
         res.status(500).json({ success: false, message: error.message })
     }
 }
+const deleteProperty = async (req, res) => {
+    try {
+
+        const { propertyId } = req.body
+
+        if (!propertyId) {
+            return res.status(400).json({ success: false, message: "Property ID is required" })
+        }
+
+        const deleteProperty = await propertyModel.findByIdAndDelete(propertyId)
+
+        if (!deleteProperty) {
+            return res.status(404).json({ success: false, message: "Property not found" })
+        }
+
+        res.status(200).json({ success: true, message: "Property deleted successfully" })
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message })
+    }
+}
 
 
-export { addProperty, loginAdmin, allProperties }
+export { addProperty, loginAdmin, allProperties, deleteProperty }

@@ -23,6 +23,7 @@ export default {
       "gray-800": "#1f2937",
       "green-500": "#22c55e",
       "stone-100": "#f5f5f4",
+      "red-600": "#DC2626",
     }
   },
   plugins: [],

@@ -1,4 +1,4 @@
-import { useState, useRef, useContext } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
 import "../Styles/Categories.css";
 import { MdFilterList } from "react-icons/md";
 import { FaToggleOn, FaToggleOff } from "react-icons/fa";
@@ -10,13 +10,24 @@ const Categories = () => {
   const [isOn, setIsOn] = useState(false);
   const [showForwardArrow, setShowForwardArrow] = useState(true);
   const [showBackwardArrow, setShowBackwardArrow] = useState(false);
-  const { data, setSelectedCategory, properties, getPropertiesData } =
-    useContext(AppContext);
+  const { data, setSelectedCategory } = useContext(AppContext);
   const iconsRef = useRef(null);
 
   // Toggle switch handler
   const handleToggle = () => {
     setIsOn(!isOn);
+  };
+
+  // Arrow visibility control
+  const handleArrowVisibility = () => {
+    if (!iconsRef.current) return;
+
+    const scrollLeft = iconsRef.current.scrollLeft;
+    const scrollWidth = iconsRef.current.scrollWidth;
+    const clientWidth = iconsRef.current.clientWidth;
+
+    setShowBackwardArrow(scrollLeft > 0);
+    setShowForwardArrow(scrollLeft + clientWidth < scrollWidth);
   };
 
   // Scroll forward handler
@@ -35,20 +46,14 @@ const Categories = () => {
     }
   };
 
-  // Arrow visibility control based on scroll position
-  const handleArrowVisibility = () => {
-    const scrollLeft = iconsRef.current.scrollLeft;
-    const scrollWidth = iconsRef.current.scrollWidth;
-    const clientWidth = iconsRef.current.clientWidth;
-
-    setShowBackwardArrow(scrollLeft > 0);
-    setShowForwardArrow(scrollLeft + clientWidth < scrollWidth);
-  };
-
   // Handle icon selection
   const selectIcon = (index) => {
     setSelectedIcon(index);
   };
+
+  useEffect(() => {
+    handleArrowVisibility();
+  }, [data]); // Run when data changes
 
   return (
     <div className="container sticky inset-16 sm:inset-14">
@@ -65,8 +70,8 @@ const Categories = () => {
             ref={iconsRef}
             onScroll={handleArrowVisibility}
           >
-            {data.map((item) => {
-              return (
+            {data && data.length > 0 ? (
+              data.map((item) => (
                 <div
                   key={item.id}
                   onClick={() => {
@@ -80,9 +85,11 @@ const Categories = () => {
                   <img src={item.url} alt={item.name} />
                   <span>{item.name}</span>
                 </div>
-              );
-            })}
-          </div>{" "}
+              ))
+            ) : (
+              <p>No categories available</p>
+            )}
+          </div>
           {showForwardArrow && (
             <div className="arrows arrow-right" onClick={scrollForward}>
               <FaChevronRight />

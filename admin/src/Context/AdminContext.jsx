@@ -49,6 +49,25 @@ const AdminContextProvider = (props) => {
     }
   };
 
+  const deleteProperty = async (propertyId) => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/admin/delete-property",
+        { propertyId },
+        { headers: { aToken } }
+      );
+      if (data.success) {
+        toast.success(data.message);
+        getAllProperties();
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
   const value = {
     aToken,
     setAToken,
@@ -57,6 +76,7 @@ const AdminContextProvider = (props) => {
     setProperties,
     getAllProperties,
     changeAvailability,
+    deleteProperty,
   };
 
   return (
