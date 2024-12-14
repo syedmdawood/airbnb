@@ -2,6 +2,7 @@ import validator from "validator"
 import bcrypt from "bcrypt"
 import userModel from "../Models/userModel.js"
 import jwt from "jsonwebtoken"
+import propertyModel from "../Models/propertyModel.js";
 
 // Api for register user
 const registerUser = async (req, res) => {
@@ -87,4 +88,70 @@ const loginUser = async (req, res) => {
     }
 }
 
-export { registerUser, loginUser }
+const bookProperty = async (req, res) => {
+    try {
+        const { userId, propertyId, checkInDate, checkOutDate, totalPrice, guestCount } = req.body;
+
+        // Fetch property data
+        const propertyData = await propertyModel.findById(propertyId);
+
+        if (!propertyData.availability) {
+            return res.status(400).json({ success: false, message: "Property is not available" });
+        }
+
+        let slots_booked = propertyData.slots_booked;
+
+        // Validate and update slot availability
+        const checkIn = new Date(checkInDate);
+        const checkOut = new Date(checkOutDate);
+        for (let date = checkIn; date < checkOut; date.setDate(date.getDate() + 1)) {
+            const formattedDate = date.toISOString().split("T")[0];
+            if (slots_booked[formattedDate]) {
+                if (slots_booked[formattedDate] + guestCount > propertyData.maxGuests) {
+                    return res.status(400).json({ success: false, message: `Not enough availability on ${formattedDate}` });
+                } else {
+                    slots_booked[formattedDate] += guestCount;
+                }
+            } else {
+                slots_booked[formattedDate] = guestCount;
+            }
+        }
+
+        // Fetch user data
+        const userData = await userModel.findById(userId).select("-password");
+
+        // Create booking data
+        const bookingData = {
+            userId,
+            propertyId,
+            userData,
+            propertyData: {
+                ...propertyData.toObject(),
+                slots_booked: undefined, // Exclude slots from the response
+            },
+            checkInDate,
+            checkOutDate,
+            totalPrice,
+            guestCount,
+            date: Date.now(),
+        };
+
+        // Save booking data
+        const newBooking = new bookingModel(bookingData);
+        await newBooking.save();
+
+        // Update slots in the property
+        await propertyModel.findByIdAndUpdate(propertyId, { slots_booked });
+
+        res.status(200).json({ success: true, message: "Booking successful" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+
+export { registerUser, loginUser, bookProperty }
+
+
+

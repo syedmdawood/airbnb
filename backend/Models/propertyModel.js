@@ -8,7 +8,7 @@ const propertySchema = new mongoose.Schema({
     location: { type: String, required: true },
     pricePerNight: { type: Number, required: true, min: 0, },
     amenities: {
-        type: [String], // Array of amenities like 'Wi-Fi', 'Parking', 'Pool', etc.
+        type: [String], // Array of amenities like 'Wi-Fi', 'Parking', 'Pool', etc
         default: [],
     },
     category: { type: String, required: true },

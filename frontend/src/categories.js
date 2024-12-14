@@ -49,7 +49,7 @@ const categories = [
     },
     {
         id: 11,
-        name: "Trending",
+        name: "Trendings",
         url: 'https://a0.muscache.com/pictures/3726d94b-534a-42b8-bca0-a0304d912260.jpg'
     },
     {

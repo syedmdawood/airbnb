@@ -1,88 +1,48 @@
 import { useState, useContext, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AppContext } from "../Context/AppContext";
+import axios from "axios"; // Import axios for making API requests
 
 const BookingPage = () => {
   const { id } = useParams();
-  const { properties } = useContext(AppContext); // Assuming properties contain the product data
+  const { properties, gToken, calculateDaysBetweenDates, calculateTotalPrice } =
+    useContext(AppContext);
   const navigate = useNavigate();
 
   // Find the selected product from the context
-  const product = properties.find((item) => item._id === id); // Use _id for consistency
+  const product = properties.find((item) => item._id === id);
+
+  // If no product is found, redirect to a 404 page or show an error
 
   // Form state for booking details
   const [checkInDate, setCheckInDate] = useState("");
   const [checkOutDate, setCheckOutDate] = useState("");
   const [guestCount, setGuestCount] = useState(1);
-  const [errors, setErrors] = useState({
-    checkIn: "",
-    checkOut: "",
-    guestCount: "",
-  });
-  const [totalPrice, setTotalPrice] = useState(0); // New state for total price
+  const [totalPrice, setTotalPrice] = useState(0);
 
   // Calculate total price based on dates and guest count
-  const calculateTotalPrice = () => {
-    if (checkInDate && checkOutDate && guestCount > 0) {
-      const pricePerNight = product.pricePerNight; // Adjusted field name to pricePerNight
-      const total =
-        (pricePerNight *
-          guestCount *
-          (new Date(checkOutDate) - new Date(checkInDate))) /
-        (1000 * 3600 * 24); // Calculate total price based on the number of nights
-      setTotalPrice(total);
-    }
-  };
+  // const calculateTotalPrice = () => {
+  //   if (checkInDate && checkOutDate && guestCount > 0) {
+  //     const pricePerNight = product.pricePerNight;
+  //     const total =
+  //       (pricePerNight *
+  //         guestCount *
+  //         (new Date(checkOutDate) - new Date(checkInDate))) /
+  //       (1000 * 3600 * 24); // Calculate total price based on the number of nights
+  //     setTotalPrice(total);
+  //   }
+  // };
 
   // UseEffect to recalculate total price when input values change
-  useEffect(() => {
-    calculateTotalPrice();
-  }, [checkInDate, checkOutDate, guestCount]);
+  // useEffect(() => {
+  //   calculateTotalPrice();
+  // }, [checkInDate, checkOutDate, guestCount]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Simple validation
-    let valid = true;
-    const newErrors = { checkIn: "", checkOut: "", guestCount: "" };
-
-    if (!checkInDate) {
-      newErrors.checkIn = "Check-in date is required";
-      valid = false;
-    }
-
-    if (!checkOutDate) {
-      newErrors.checkOut = "Check-out date is required";
-      valid = false;
-    }
-
-    if (new Date(checkOutDate) <= new Date(checkInDate)) {
-      newErrors.checkOut = "Check-out date must be after check-in date";
-      valid = false;
-    }
-
-    if (guestCount <= 0) {
-      newErrors.guestCount = "Number of guests must be greater than 0";
-      valid = false;
-    }
-
-    setErrors(newErrors);
-
-    if (valid) {
-      // Show confirmation alert
-      const confirmed = window.confirm(
-        `Are you sure you want to book this stay for $${totalPrice.toFixed(2)}?`
-      );
-      if (confirmed) {
-        // Booking successful
-        alert(`Booking successful! Total price: $${totalPrice.toFixed(2)}`);
-        navigate("/"); // Redirect to home page after booking
-      }
-    }
   };
-
   if (!product) {
-    return <div className="text-center">Product not found</div>;
+    return <div>Product not found</div>; // You could redirect here instead
   }
 
   return (
@@ -106,6 +66,19 @@ const BookingPage = () => {
             <p className="text-lg font-bold text-orange-500">
               ${product.pricePerNight} per night
             </p>
+
+            <p>
+              Total Days:{" "}
+              {calculateDaysBetweenDates(product.checkin, product.checkout)}
+            </p>
+            <p>
+              Total Price:{" "}
+              {calculateTotalPrice(
+                product.checkin,
+                product.checkout,
+                product.pricePerNight
+              )}
+            </p>
           </div>
         </div>
 
@@ -120,9 +93,6 @@ const BookingPage = () => {
               onChange={(e) => setCheckInDate(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
-            {errors.checkIn && (
-              <span className="text-red-500 text-sm">{errors.checkIn}</span>
-            )}
           </div>
 
           <div className="form-group mb-6">
@@ -135,9 +105,6 @@ const BookingPage = () => {
               onChange={(e) => setCheckOutDate(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
-            {errors.checkOut && (
-              <span className="text-red-500 text-sm">{errors.checkOut}</span>
-            )}
           </div>
 
           <div className="form-group mb-6">
@@ -151,36 +118,17 @@ const BookingPage = () => {
               onChange={(e) => setGuestCount(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
-            {errors.guestCount && (
-              <span className="text-red-500 text-sm">{errors.guestCount}</span>
-            )}
           </div>
 
           <button
             type="submit"
             className="w-full py-3 bg-Button text-white font-semibold rounded-md hover:bg-orange-600 transition"
+            // disabled={loading}
           >
-            Confirm Booking
+            {/* {loading ? "Booking..." : "Confirm Booking"} */}
+            Book Now
           </button>
         </form>
-
-        <div className="booking-summary mt-8">
-          <h3 className="text-2xl font-medium text-gray-800">
-            Booking Summary
-          </h3>
-          <p className="text-gray-600">
-            Check-in Date: {checkInDate || "Not selected"}
-          </p>
-          <p className="text-gray-600">
-            Check-out Date: {checkOutDate || "Not selected"}
-          </p>
-          <p className="text-gray-600">Number of Guests: {guestCount}</p>
-          {totalPrice !== null && (
-            <p className="text-lg font-semibold text-gray-800 mt-4">
-              Total Price: ${totalPrice.toFixed(2)}
-            </p>
-          )}
-        </div>
       </div>
     </div>
   );

@@ -35,6 +35,35 @@ const AppContextProvider = (props) => {
     return `${checkinFormatted} - ${checkoutFormatted}`;
   };
 
+  const calculateDaysBetweenDates = (checkin, checkout) => {
+    const start = new Date(checkin);
+    const end = new Date(checkout);
+    if (isNaN(start) || isNaN(end)) {
+      throw new Error("Invalid dates");
+    }
+    if (start > end) {
+      throw new Error("Start date must be before end date");
+    }
+    const differenceInTime = end - start;
+    const differenceInDays = differenceInTime / (1000 * 3600 * 24);
+    return differenceInDays;
+  };
+
+  const calculateTotalPrice = (checkin, checkout, pricePerNight) => {
+    const start = new Date(checkin);
+    const end = new Date(checkout);
+    if (isNaN(start) || isNaN(end)) {
+      throw new Error("Invalid dates");
+    }
+    if (start > end) {
+      throw new Error("Start date must be before end date");
+    }
+    const differenceInTime = end - start;
+    const differenceInDays = differenceInTime / (1000 * 3600 * 24);
+    const totalPrice = differenceInDays * pricePerNight;
+    return totalPrice;
+  };
+
   const getPropertiesData = async () => {
     try {
       const { data } = await axios.get(
@@ -129,6 +158,8 @@ const AppContextProvider = (props) => {
     getHostData,
     changeAvailability,
     deleteProperty,
+    calculateDaysBetweenDates,
+    calculateTotalPrice,
   };
 
   return (
