@@ -10,7 +10,7 @@ const authUser = async (req, res, next) => {
         if (!gtoken) {
             return res.status(401).json({ success: false, message: "Not Authorized Login Again" })
         }
-        const token_decode = jwt.verify(htoken, process.env.JWT_SECRET_GUEST)
+        const token_decode = jwt.verify(gtoken, process.env.JWT_SECRET_GUEST)
 
         req.user = { userId: token_decode.id };
 

@@ -1,49 +1,102 @@
 import { useState, useContext, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AppContext } from "../Context/AppContext";
-import axios from "axios"; // Import axios for making API requests
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const BookingPage = () => {
   const { id } = useParams();
-  const { properties, gToken, calculateDaysBetweenDates, calculateTotalPrice } =
-    useContext(AppContext);
+  const { properties, gToken } = useContext(AppContext);
   const navigate = useNavigate();
 
-  // Find the selected product from the context
   const product = properties.find((item) => item._id === id);
 
-  // If no product is found, redirect to a 404 page or show an error
+  if (!product) {
+    return <div>Product not found</div>;
+  }
 
-  // Form state for booking details
   const [checkInDate, setCheckInDate] = useState("");
   const [checkOutDate, setCheckOutDate] = useState("");
   const [guestCount, setGuestCount] = useState(1);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [checkInError, setCheckInError] = useState("");
+  const [checkOutError, setCheckOutError] = useState("");
+  const [message, setMessage] = useState(""); // For success/error messages
 
-  // Calculate total price based on dates and guest count
-  // const calculateTotalPrice = () => {
-  //   if (checkInDate && checkOutDate && guestCount > 0) {
-  //     const pricePerNight = product.pricePerNight;
-  //     const total =
-  //       (pricePerNight *
-  //         guestCount *
-  //         (new Date(checkOutDate) - new Date(checkInDate))) /
-  //       (1000 * 3600 * 24); // Calculate total price based on the number of nights
-  //     setTotalPrice(total);
-  //   }
-  // };
+  const calculateDaysBetweenDates = (startDate, endDate) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (isNaN(start) || isNaN(end) || start >= end) return 0;
+    return Math.ceil((end - start) / (1000 * 3600 * 24));
+  };
 
-  // UseEffect to recalculate total price when input values change
-  // useEffect(() => {
-  //   calculateTotalPrice();
-  // }, [checkInDate, checkOutDate, guestCount]);
+  const calculateTotalPrice = () => {
+    const days = calculateDaysBetweenDates(checkInDate, checkOutDate);
+    if (days > 0 && guestCount > 0) {
+      const total = days * guestCount * product.pricePerNight;
+      setTotalPrice(total);
+    } else {
+      setTotalPrice(0);
+    }
+  };
+
+  useEffect(() => {
+    calculateTotalPrice();
+  }, [checkInDate, checkOutDate, guestCount]);
+
+  const validateDates = () => {
+    if (checkInDate && checkOutDate) {
+      const checkIn = new Date(checkInDate);
+      const checkOut = new Date(checkOutDate);
+
+      if (checkIn >= checkOut) {
+        setCheckInError("Check-in date must be earlier than check-out date.");
+        setCheckOutError("Check-out date must be later than check-in date.");
+        return false;
+      } else {
+        setCheckInError("");
+        setCheckOutError("");
+        return true;
+      }
+    }
+    return false;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!validateDates()) {
+      return;
+    }
+
+    // Get userId from gToken
+
+    // try {
+    //   const { data } = await axios.post(
+    //     "http://localhost:5000/api/user/book-property",
+    //     {
+    //       propertyId: product._id,
+    //       checkInDate,
+    //       checkOutDate,
+    //       guestCount,
+    //       totalPrice,
+    //     },
+    //     { headers: { gToken } }
+    //   );
+
+    //   if (data.success) {
+    //     setMessage("Booking successful!");
+    //     toast.success(data.message);
+    //     navigate("/"); // Redirect after booking
+    //   } else {
+    //     setMessage("Failed to book the property. Please try again.");
+    //     toast.error(data.message);
+    //   }
+    // } catch (error) {
+    //   console.log(error);
+    //   toast.error(error.response ? error.response.data.message : error.message);
+    // }
   };
-  if (!product) {
-    return <div>Product not found</div>; // You could redirect here instead
-  }
 
   return (
     <div className="booking-page px-8 py-16 bg-gray-50">
@@ -66,19 +119,6 @@ const BookingPage = () => {
             <p className="text-lg font-bold text-orange-500">
               ${product.pricePerNight} per night
             </p>
-
-            <p>
-              Total Days:{" "}
-              {calculateDaysBetweenDates(product.checkin, product.checkout)}
-            </p>
-            <p>
-              Total Price:{" "}
-              {calculateTotalPrice(
-                product.checkin,
-                product.checkout,
-                product.pricePerNight
-              )}
-            </p>
           </div>
         </div>
 
@@ -90,9 +130,17 @@ const BookingPage = () => {
             <input
               type="date"
               value={checkInDate}
-              onChange={(e) => setCheckInDate(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+              onChange={(e) => {
+                setCheckInDate(e.target.value);
+                validateDates();
+              }}
+              className={`w-full p-3 border ${
+                checkInError ? "border-red-500" : "border-gray-300"
+              } rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500`}
             />
+            {checkInError && (
+              <p className="text-red-500 text-sm mt-1">{checkInError}</p>
+            )}
           </div>
 
           <div className="form-group mb-6">
@@ -102,9 +150,17 @@ const BookingPage = () => {
             <input
               type="date"
               value={checkOutDate}
-              onChange={(e) => setCheckOutDate(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+              onChange={(e) => {
+                setCheckOutDate(e.target.value);
+                validateDates();
+              }}
+              className={`w-full p-3 border ${
+                checkOutError ? "border-red-500" : "border-gray-300"
+              } rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500`}
             />
+            {checkOutError && (
+              <p className="text-red-500 text-sm mt-1">{checkOutError}</p>
+            )}
           </div>
 
           <div className="form-group mb-6">
@@ -120,12 +176,21 @@ const BookingPage = () => {
             />
           </div>
 
+          <div className="mb-6">
+            <span className="text-gray-700 font-medium">Total Price:</span>{" "}
+            <span className="text-lg font-bold text-orange-500">
+              ${totalPrice.toFixed(2)}
+            </span>
+          </div>
+
+          {message && (
+            <div className="text-center mb-4 text-green-600">{message}</div>
+          )}
+
           <button
             type="submit"
-            className="w-full py-3 bg-Button text-white font-semibold rounded-md hover:bg-orange-600 transition"
-            // disabled={loading}
+            className="w-full py-3 bg-orange-500 text-white font-semibold rounded-md hover:bg-orange-600 transition"
           >
-            {/* {loading ? "Booking..." : "Confirm Booking"} */}
             Book Now
           </button>
         </form>
