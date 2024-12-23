@@ -89,96 +89,67 @@ const loginUser = async (req, res) => {
     }
 }
 
-// const bookProperty = async (req, res) => {
-//     try {
-//         const { userId, propertyId, checkInDate, checkOutDate, totalPrice, guestCount } = req.body;
+
+const bookProperty = async (req, res) => {
+    try {
+        const { propertyId, checkin, checkout, guest, totalPrice } = req.body;
+
+        // Use the userId from the token
+        const userId = req.user.userId;
+
+        if (!propertyId || !userId || !checkin || !checkout || !guest || !totalPrice) {
+            return res.status(400).json({ message: "All fields are required." });
+        }
+
+        const checkinDate = new Date(checkin);
+        const checkoutDate = new Date(checkout);
+
+        if (checkinDate >= checkoutDate) {
+            return res.status(400).json({ message: "Check-in date must be before check-out date." });
+        }
+
+        const property = await propertyModel.findById(propertyId);
+        if (!property) {
+            return res.status(404).json({ message: "Property not found." });
+        }
+
+        const slotsBooked = property.slots_booked || {};
+        for (const date in slotsBooked) {
+            const bookedCheckin = new Date(slotsBooked[date].checkin);
+            const bookedCheckout = new Date(slotsBooked[date].checkout);
+            if (checkinDate < bookedCheckout && checkoutDate > bookedCheckin) {
+                return res.status(400).json({ success: false, message: "Property is already booked for the dates" });
+            }
+        }
+
+        const booking = new bookingModel({
+            propertyId,
+            userId,
+            checkin: checkinDate,
+            checkout: checkoutDate,
+            guest,
+            totalPrice,
+            date: Date.now(),
+        });
+
+        await booking.save();
+
+        const newSlot = { checkin: checkinDate, checkout: checkoutDate, userId };
+        const slotKey = `${checkinDate.toISOString()}-${checkoutDate.toISOString()}`;
+        property.slots_booked[slotKey] = newSlot;
+
+        await property.save();
+
+        return res.status(200).json({ success: true, message: "Property Booked Successfully" });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
 
 
 
-
-
-//         if (!propertyData.availability) {
-//             return res.status(400).json({ success: false, message: "Property is not available" });
-//         }
-
-//         let slots_booked = propertyData.slots_booked;
-
-//         // Validate and update slot availability
-//         const checkIn = new Date(checkInDate);
-//         const checkOut = new Date(checkOutDate);
-
-//         let isAvailable = true;
-//         let nextAvailableDate = null;
-
-//         for (let date = checkIn; date < checkOut; date.setDate(date.getDate() + 1)) {
-//             const formattedDate = date.toISOString().split("T")[0];
-//             if (slots_booked[formattedDate]) {
-//                 if (slots_booked[formattedDate] + guestCount > propertyData.maxGuests) {
-//                     isAvailable = false;
-//                     break;
-//                 }
-//             }
-//         }
-
-//         // If dates are not available, find the next available date
-//         if (!isAvailable) {
-//             const bookedDates = Object.keys(slots_booked)
-//                 .filter(date => slots_booked[date] >= propertyData.maxGuests)
-//                 .sort((a, b) => new Date(a) - new Date(b)); // Sort dates in ascending order
-
-//             const lastBookedDate = new Date(bookedDates[bookedDates.length - 1]);
-//             nextAvailableDate = new Date(lastBookedDate);
-//             nextAvailableDate.setDate(nextAvailableDate.getDate() + 1);
-
-//             return res.status(400).json({
-//                 success: false,
-//                 message: `Selected dates are unavailable. Next available date is ${nextAvailableDate.toISOString().split("T")[0]}`,
-//             });
-//         }
-
-//         // Update slots if dates are available
-//         for (let date = checkIn; date < checkOut; date.setDate(date.getDate() + 1)) {
-//             const formattedDate = date.toISOString().split("T")[0];
-//             if (slots_booked[formattedDate]) {
-//                 slots_booked[formattedDate] += guestCount;
-//             } else {
-//                 slots_booked[formattedDate] = guestCount;
-//             }
-//         }
-
-//         // Fetch user data
-//         const userData = await userModel.findById(userId).select("-password");
-
-//         // Create booking data
-//         const bookingData = {
-//             userId,
-//             propertyId,
-//             userData,
-//             propertyData,
-//             checkInDate,
-//             checkOutDate,
-//             totalPrice,
-//             guestCount,
-//             date: Date.now(),
-//         };
-
-//         // Save booking data
-//         const newBooking = new bookingModel(bookingData);
-//         await newBooking.save();
-
-//         // Update slots in the property
-//         await propertyModel.findByIdAndUpdate(propertyId, { slots_booked });
-
-//         res.status(200).json({ success: true, message: "Booking successful" });
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ success: false, message: error.message });
-//     }
-// };
-
-
-
-export { registerUser, loginUser }
+export { registerUser, loginUser, bookProperty }
 
 
 

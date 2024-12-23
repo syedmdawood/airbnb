@@ -1,27 +1,30 @@
-import jwt from "jsonwebtoken"
-
-// admin authentication middleware
-
+import jwt from "jsonwebtoken";
 
 const authUser = async (req, res, next) => {
     try {
+        // Extract Authorization header
+        const authHeader = req.headers.authorization;
 
-        const { gtoken } = req.headers
-        if (!gtoken) {
-            return res.status(401).json({ success: false, message: "Not Authorized Login Again" })
+        // Check if the Authorization header exists and starts with "Bearer"
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            return res.status(401).json({ success: false, message: "Not Authorized. Login Again" });
         }
-        const token_decode = jwt.verify(gtoken, process.env.JWT_SECRET_GUEST)
 
+        // Extract the token from the header
+        const token = authHeader.split(" ")[1];
+
+        // Verify the token using the secret key
+        const token_decode = jwt.verify(token, process.env.JWT_SECRET_GUEST);
+
+        // Attach user information to the request object
         req.user = { userId: token_decode.id };
 
-        next()
-
+        // Proceed to the next middleware or route handler
+        next();
     } catch (error) {
         console.log(error);
-        res.status(500).json({ success: false, message: error.message })
+        return res.status(401).json({ success: false, message: "Invalid token" });
     }
-}
+};
 
-
-
-export default authUser
+export default authUser;

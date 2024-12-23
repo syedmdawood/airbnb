@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 
 const BookingPage = () => {
   const { id } = useParams();
-  const { properties, gToken } = useContext(AppContext);
+  const { properties, gToken, hToken } = useContext(AppContext);
   const navigate = useNavigate();
 
   const product = properties.find((item) => item._id === id);
@@ -69,37 +69,42 @@ const BookingPage = () => {
       return;
     }
 
-    // Get userId from gToken
+    const payload = {
+      propertyId: product._id,
+      checkin: checkInDate,
+      checkout: checkOutDate,
+      guest: Number(guestCount),
+      totalPrice: Number(totalPrice),
+    };
 
-    // try {
-    //   const { data } = await axios.post(
-    //     "http://localhost:5000/api/user/book-property",
-    //     {
-    //       propertyId: product._id,
-    //       checkInDate,
-    //       checkOutDate,
-    //       guestCount,
-    //       totalPrice,
-    //     },
-    //     { headers: { gToken } }
-    //   );
+    console.log("Payload being sent:", payload);
 
-    //   if (data.success) {
-    //     setMessage("Booking successful!");
-    //     toast.success(data.message);
-    //     navigate("/"); // Redirect after booking
-    //   } else {
-    //     setMessage("Failed to book the property. Please try again.");
-    //     toast.error(data.message);
-    //   }
-    // } catch (error) {
-    //   console.log(error);
-    //   toast.error(error.response ? error.response.data.message : error.message);
-    // }
+    try {
+      const { data } = await axios.post(
+        "http://localhost:5000/api/user/book-property",
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${gToken}`, // Pass token in the correct format
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (data.success) {
+        toast.success(data.message);
+        navigate("/book/all-bookings");
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error("Error details:", error.response?.data || error.message);
+      toast.error(error.response?.data?.message || "An error occurred");
+    }
   };
 
   return (
-    <div className="booking-page px-8 py-16 bg-gray-50">
+    <div className="booking-page px-8 py-16 ">
       <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-xl">
         <h2 className="text-3xl font-semibold text-center text-gray-800 mb-6">
           Book Your Stay at {product.title}
@@ -123,6 +128,11 @@ const BookingPage = () => {
         </div>
 
         <form onSubmit={handleSubmit}>
+          <div className="opacity-0">
+            {/* <p>{product.id}</p>
+            <p>{gToken}</p>
+            <p>{hToken}</p> */}
+          </div>
           <div className="form-group mb-6">
             <label className="block text-gray-700 font-medium mb-2">
               Check-in Date

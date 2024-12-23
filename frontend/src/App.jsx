@@ -20,6 +20,7 @@ import { AppContext } from "./Context/AppContext";
 import Bookings from "./Host/Pages/Bookings";
 import PropertyList from "./Host/Pages/PropertyList";
 import AddProperty from "./Host/Pages/AddProperty";
+import PropertyBookings from "./Pages/propertyBookings";
 
 const App = () => {
   const { gToken, hToken } = useContext(AppContext);
@@ -57,6 +58,15 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <BookingPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/book/all-bookings"
+            element={
+              <ProtectedRoute>
+                <PropertyBookings />
               </ProtectedRoute>
             }
           />
