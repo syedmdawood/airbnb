@@ -121,7 +121,7 @@ const BookingPage = () => {
               {product.title}
             </h3>
             <p className="text-gray-600">{product.subMainTitle}</p>
-            <p className="text-lg font-bold text-orange-500">
+            <p className="text-lg font-bold text-Button">
               ${product.pricePerNight} per night
             </p>
           </div>
@@ -188,7 +188,7 @@ const BookingPage = () => {
 
           <div className="mb-6">
             <span className="text-gray-700 font-medium">Total Price:</span>{" "}
-            <span className="text-lg font-bold text-orange-500">
+            <span className="text-lg font-bold text-Button">
               ${totalPrice.toFixed(2)}
             </span>
           </div>
@@ -199,7 +199,7 @@ const BookingPage = () => {
 
           <button
             type="submit"
-            className="w-full py-3 bg-orange-500 text-white font-semibold rounded-md hover:bg-orange-600 transition"
+            className="w-full py-3 bg-Button text-white font-semibold rounded-md hover:bg-orange-600 transition"
           >
             Book Now
           </button>

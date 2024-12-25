@@ -122,4 +122,6 @@ const deleteProperty = async (req, res) => {
 
 
 
+
+
 export { addProperty, allProperties, availabilityChangeByHost, deleteProperty }

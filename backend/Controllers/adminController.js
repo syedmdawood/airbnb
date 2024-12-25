@@ -3,6 +3,8 @@ import { v2 as cloudinary } from "cloudinary"
 import propertyModel from "../Models/propertyModel.js"
 import jwt from "jsonwebtoken"
 import mongoose from "mongoose"
+import bookingModel from "../Models/bookingModel.js"
+import userModel from "../Models/userModel.js"
 
 // Api for adding property from admin
 const addProperty = async (req, res) => {
@@ -101,5 +103,103 @@ const deleteProperty = async (req, res) => {
     }
 }
 
+const allBookings = async (req, res) => {
+    try {
 
-export { addProperty, loginAdmin, allProperties, deleteProperty }
+        const bookings = await bookingModel
+            .find({})
+            .populate('propertyId', 'name image location price distance title')
+            .populate('userId', 'name email');
+
+        res.status(200).json({ success: true, bookings })
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message })
+    }
+}
+
+const cancelBooking = async (req, res) => {
+    try {
+        const { bookingId } = req.body;
+
+        // Find the booking by its ID
+        const booking = await bookingModel.findById(bookingId);
+
+        if (!booking) {
+            return res.status(404).json({ success: false, message: "Booking not found." });
+        }
+
+        // Check if the booking is already cancelled or completed
+        if (booking.cancelled || booking.isCompleted) {
+            return res.status(400).json({ success: false, message: "This booking cannot be cancelled." });
+        }
+
+        // Mark the booking as cancelled
+        booking.cancelled = true;
+        await booking.save();
+
+        return res.status(200).json({ success: true, message: "Booking cancelled successfully." });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+const completeBooking = async (req, res) => {
+    try {
+        const { bookingId } = req.body;
+
+        // Find the booking by its ID
+        const booking = await bookingModel.findById(bookingId);
+
+        if (!booking) {
+            return res.status(404).json({ success: false, message: "Booking not found." });
+        }
+
+        // Check if the booking is already cancelled or completed
+        if (booking.cancelled || booking.isCompleted) {
+            return res.status(400).json({ success: false, message: "This booking cannot be cancelled." });
+        }
+
+        // Mark the booking as cancelled
+        booking.isCompleted = true;
+        await booking.save();
+
+        return res.status(200).json({ success: true, message: "Booking Completed ." });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+
+const adminDashboard = async (req, res) => {
+    try {
+
+        const properties = await propertyModel.find({})
+        const users = await userModel.find({})
+        const bookings = await bookingModel
+            .find({})
+            .populate('propertyId', 'name image location price distance title')
+            .populate('userId', 'name email');
+
+        const dashData = {
+            properties: properties.length,
+            bookings: bookings.length,
+            users: users.length,
+            latestBookings: bookings.reverse().slice(0, 5)
+        }
+
+        res.status(200).json({ success: true, dashData })
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
+
+
+
+
+export { addProperty, loginAdmin, allProperties, deleteProperty, allBookings, adminDashboard, completeBooking }

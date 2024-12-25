@@ -89,7 +89,6 @@ const loginUser = async (req, res) => {
     }
 }
 
-
 const bookProperty = async (req, res) => {
     try {
         const { propertyId, checkin, checkout, guest, totalPrice } = req.body;
@@ -108,20 +107,22 @@ const bookProperty = async (req, res) => {
             return res.status(400).json({ message: "Check-in date must be before check-out date." });
         }
 
-        const property = await propertyModel.findById(propertyId);
-        if (!property) {
-            return res.status(404).json({ message: "Property not found." });
+        // Check if the property is already booked for the requested dates
+        const existingBooking = await bookingModel.findOne({
+            propertyId,
+            $or: [
+                {
+                    checkin: { $lt: checkoutDate },
+                    checkout: { $gt: checkinDate }
+                }
+            ]
+        });
+
+        if (existingBooking) {
+            return res.status(400).json({ success: false, message: "Property is already booked for the selected dates." });
         }
 
-        const slotsBooked = property.slots_booked || {};
-        for (const date in slotsBooked) {
-            const bookedCheckin = new Date(slotsBooked[date].checkin);
-            const bookedCheckout = new Date(slotsBooked[date].checkout);
-            if (checkinDate < bookedCheckout && checkoutDate > bookedCheckin) {
-                return res.status(400).json({ success: false, message: "Property is already booked for the dates" });
-            }
-        }
-
+        // Create a new booking
         const booking = new bookingModel({
             propertyId,
             userId,
@@ -134,12 +135,6 @@ const bookProperty = async (req, res) => {
 
         await booking.save();
 
-        const newSlot = { checkin: checkinDate, checkout: checkoutDate, userId };
-        const slotKey = `${checkinDate.toISOString()}-${checkoutDate.toISOString()}`;
-        property.slots_booked[slotKey] = newSlot;
-
-        await property.save();
-
         return res.status(200).json({ success: true, message: "Property Booked Successfully" });
     } catch (error) {
         console.log(error);
@@ -148,8 +143,68 @@ const bookProperty = async (req, res) => {
 };
 
 
+const listBookings = async (req, res) => {
+    try {
+        // Use the userId from the authenticated token
+        const userId = req.user.userId;
 
-export { registerUser, loginUser, bookProperty }
+        // Find the user to ensure they exist
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.status(400).json({ success: false, message: "User not found." });
+        }
+
+        // Fetch bookings for the authenticated user and populate property and user detail
+        const bookings = await bookingModel
+            .find({ userId })
+            .populate('propertyId', 'name image location price distance') // Specify fields to fetch from the propertyModel
+            .populate('userId', 'name email'); // Specify fields to fetch from the userModel
+
+        // Check if there are no bookings
+        if (bookings.length === 0) {
+            return res.status(404).json({ success: false, message: "No bookings found for this user." });
+        }
+
+        res.status(200).json({ success: true, bookings });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+const cancelBooking = async (req, res) => {
+    try {
+        const { bookingId } = req.body;  // Ensure bookingId is correctly received
+
+        // Find the booking by its ID
+        const booking = await bookingModel.findById(bookingId);
+
+        if (!booking) {
+            return res.status(404).json({ success: false, message: "Booking not found." });
+        }
+
+        // Check if the booking is already cancelled or completed
+        if (booking.cancelled || booking.isCompleted) {
+            return res.status(400).json({ success: false, message: "This booking cannot be cancelled." });
+        }
+
+        // Mark the booking as cancelled
+        booking.cancelled = true;
+        await booking.save();
+
+        return res.status(200).json({ success: true, message: "Booking cancelled successfully." });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+
+
+
+
+
+export { registerUser, loginUser, bookProperty, listBookings, cancelBooking }
 
 
 

@@ -187,12 +187,21 @@ const Navbars = () => {
                       <p className="my-[10px] text-[14px]">Login</p>
                     </Link>
                   )}
+                  {gToken ? (
+                    <div>
+                      <p className="text-sm">
+                        <Link to="/book/all-bookings">My Bookings</Link>
+                      </p>
+                    </div>
+                  ) : (
+                    ""
+                  )}
 
-                  <hr className="w-full" />
-                  <p className="my-[10px] text-[14px]">Gift Cards</p>
+                  {/* <hr className="w-full" /> */}
+                  {/* <p className="my-[10px] text-[14px]">Gift Cards</p>
                   <p className="my-[10px] text-[14px]">Airbnb your home</p>
                   <p className="my-[10px] text-[14px]">Host an experience</p>
-                  <p className="my-[10px] text-[14px]">Help Center</p>
+                  <p className="my-[10px] text-[14px]">Help Center</p> */}
                 </div>
               )}
             </div>
