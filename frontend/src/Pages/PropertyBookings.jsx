@@ -102,12 +102,12 @@ const PropertyBookings = () => {
                   onClick={() => cancelBooking(item._id)}
                   className="text-sm text-stone-500 text-center py-2 px-4 border border-red-500 rounded-md hover:bg-red-600 hover:text-white transition-all duration-300"
                 >
-                  Cancel Appointment
+                  Cancel Booking
                 </button>
               )}
               {item.cancelled && !item.isCompleted && (
                 <p className="text-sm text-center py-2 px-4 border border-red-500 rounded-md text-red-500 w-52">
-                  Appointment Cancelled
+                  Cancelled
                 </p>
               )}
               {/* Mark as completed button */}

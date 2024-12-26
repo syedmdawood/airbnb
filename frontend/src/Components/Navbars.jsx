@@ -196,12 +196,6 @@ const Navbars = () => {
                   ) : (
                     ""
                   )}
-
-                  {/* <hr className="w-full" /> */}
-                  {/* <p className="my-[10px] text-[14px]">Gift Cards</p>
-                  <p className="my-[10px] text-[14px]">Airbnb your home</p>
-                  <p className="my-[10px] text-[14px]">Host an experience</p>
-                  <p className="my-[10px] text-[14px]">Help Center</p> */}
                 </div>
               )}
             </div>

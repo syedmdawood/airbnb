@@ -199,7 +199,7 @@ const BookingPage = () => {
 
           <button
             type="submit"
-            className="w-full py-3 bg-Button text-white font-semibold rounded-md hover:bg-orange-600 transition"
+            className="w-full py-3 bg-Button text-white font-semibold rounded-md  transition"
           >
             Book Now
           </button>

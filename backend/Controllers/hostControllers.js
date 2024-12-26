@@ -3,6 +3,7 @@ import { v2 as cloudinary } from "cloudinary"
 import propertyModel from "../Models/propertyModel.js"
 import jwt from "jsonwebtoken"
 import validator from "validator"
+import bookingModel from "../Models/bookingModel.js";
 
 const addProperty = async (req, res) => {
     try {
@@ -120,8 +121,80 @@ const deleteProperty = async (req, res) => {
     }
 };
 
+const hostListBooking = async (req, res) => {
+    try {
+        const { userId } = req.user;
+
+        if (!userId) {
+            return res.status(400).json({ success: false, message: "Host not found" });
+        }
+
+        // Find bookings for properties created by the host
+        const bookedProperties = await bookingModel.find({
+            propertyId: {
+                $in: await propertyModel.find({ userId }).select('_id')
+            }
+        })
+            .populate('propertyId', 'name image location price distance title')
+            .populate('userId', 'name email');
+
+        res.status(200).json({ success: true, bookedProperties });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+const cancelBookings = async (req, res) => {
+    try {
+
+        const { bookingId } = req.body
+
+        const booking = await bookingModel.findById(bookingId);
+
+        if (!booking) {
+            return res.status(404).json({ success: false, message: "Booking not found" });
+        }
+
+        if (booking.cancelled || booking.isCompleted) {
+            return res.status(400).json({ success: false, message: "This booking cannot be cancelled." });
+        }
+
+        booking.cancelled = true;
+        await booking.save();
+        return res.status(200).json({ success: true, message: "Booking cancelled successfully." });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
+
+const completeBooking = async (req, res) => {
+    try {
+
+        const { bookingId } = req.body
+
+        const booking = await bookingModel.findById(bookingId);
+
+        if (!booking) {
+            return res.status(404).json({ success: false, message: "Booking not found" });
+        }
+
+        if (booking.cancelled || booking.isCompleted) {
+            return res.status(400).json({ success: false, message: "This booking cannot be cancelled." });
+        }
+
+        booking.isCompleted = true;
+        await booking.save();
+        return res.status(200).json({ success: true, message: "Booking Completed successfully." });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
 
 
 
-
-export { addProperty, allProperties, availabilityChangeByHost, deleteProperty }
+export { addProperty, allProperties, availabilityChangeByHost, deleteProperty, hostListBooking, cancelBookings, completeBooking }
