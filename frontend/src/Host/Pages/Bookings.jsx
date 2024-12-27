@@ -85,7 +85,7 @@ const Bookings = () => {
   }, [hToken]);
 
   return (
-    <div className="w-full max-w-6xl m-5">
+    <div className="w-[90%] max-w-6xl m-5">
       <p className="mb-3 text-lg font-medium">All Bookings</p>
 
       <div className="bg-white border rounded text-sm max-h-[80vh] overflow-y-scroll min-h-[60vh]">

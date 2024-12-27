@@ -6,14 +6,14 @@ import Categories from "../Components/Categories";
 import SearchBar from "../Components/SearchBar";
 // import SingleSearchBar from "../Components/SingleSearchBar";
 
-const Home = () => {
+const Home = ({ searchQuery }) => {
   return (
     <div>
       {/* <Navbar />
       <SingleSearchBar /> */}
       <SearchBar />
       <Categories />
-      <Cards />
+      <Cards searchQuery={searchQuery} />
       {/* <Footer />
       <LowerNavbar /> */}
     </div>

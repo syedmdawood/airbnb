@@ -76,14 +76,14 @@ const PropertyBookings = () => {
             className="grid grid-cols-[1fr_3fr] gap-6 sm:flex sm:gap-6 py-4 px-6 items-center  bg-gray-50 border border-gray-200 rounded-lg shadow-sm transition-transform duration-300 "
             key={index}
           >
-            <div className="w-full max-w-xs h-48 bg-indigo-50 overflow-hidden rounded-lg">
+            <div className="w-full max-w-xs h-48 bg-indigo-50 overflow-hidden rounded-lg sm:min-w-72 ">
               <img
                 className="w-full h-full object-cover rounded-lg"
                 src={item.propertyId.image}
                 alt="Property"
               />
             </div>
-            <div className="flex-1 text-sm text-gray-700 space-y-2">
+            <div className="flex flex-col text-sm text-gray-700 space-y-2">
               <p className="text-xl font-semibold text-gray-900">
                 {item.propertyId.location}
               </p>

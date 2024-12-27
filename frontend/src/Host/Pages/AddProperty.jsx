@@ -73,7 +73,7 @@ const AddProperty = () => {
   };
 
   return (
-    <form className="m-5 w-full" onSubmit={onSubmitHandler}>
+    <form className="m-5 w-[90%]" onSubmit={onSubmitHandler}>
       <p className="mb-3 text-lg font-medium text-center">Add Property</p>
 
       <div className="bg-white px-8 py-8 border  rounded w-full max-w-3xl mx-auto shadow-xl">

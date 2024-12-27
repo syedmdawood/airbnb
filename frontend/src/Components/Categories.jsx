@@ -96,7 +96,7 @@ const Categories = () => {
             </div>
           )}
         </div>
-        <div className="buttons">
+        {/* <div className="buttons">
           <button className="first-btn">
             <MdFilterList /> <span>Filter</span>
           </button>
@@ -108,7 +108,7 @@ const Categories = () => {
               <FaToggleOff className="toggle-icon off" size={20} />
             )}
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );

@@ -14,7 +14,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Login from "./Pages/Login";
 
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { AppContext } from "./Context/AppContext";
 
 import Bookings from "./Host/Pages/Bookings";
@@ -24,6 +24,7 @@ import PropertyBookings from "./Pages/propertyBookings";
 
 const App = () => {
   const { gToken, hToken } = useContext(AppContext);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Protected Route: Requires authentication
   const ProtectedRoute = ({ children }) => {
@@ -45,10 +46,10 @@ const App = () => {
     <div>
       <Router>
         <ToastContainer />
-        <Navbars />
+        <Navbars searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
         <Routes>
           {/* Public Routes */}
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Home searchQuery={searchQuery} />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/login" element={<Login />} />
 
